@@ -1,0 +1,44 @@
+body {
+  text-align: center;
+  background-color: #011F3F;
+  font-family: sans-serif;
+  color: white;
+}
+
+h1 {
+  font-size: 2rem;
+  margin: 20px;
+}
+
+.container {
+  margin: 20px auto;
+  width: 300px;
+  display: grid;
+  grid-template-columns: repeat(2, 140px);
+  gap: 20px;
+  justify-content: center;
+}
+
+.btn {
+  height: 140px;
+  width: 140px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.green { background-color: green; }
+.red { background-color: red; }
+.yellow { background-color: yellow; }
+.blue { background-color: blue; }
+
+.pressed {
+  box-shadow: 0 0 20px white;
+  opacity: 0.6;
+}
+
+button#start-btn {
+  margin-top: 30px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+}
