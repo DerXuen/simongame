@@ -1,23 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Simon Game</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <title>Simon Game</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: #000;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        .container {
+            margin: 20px auto;
+            display: grid;
+            grid-template-columns: repeat(2, 150px);
+            grid-template-rows: repeat(2, 150px);
+            gap: 20px;
+            width: 340px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            opacity: 0.8;
+            transition: opacity 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:active {
+            opacity: 1;
+        }
+
+        #green { background-color: green; }
+        #red { background-color: red; }
+        #yellow { background-color: yellow; }
+        #blue { background-color: blue; }
+
+        .game-over {
+            background-color: darkred !important;
+        }
+
+        .flash {
+            box-shadow: 0 0 30px white;
+            opacity: 1 !important;
+        }
+
+        .pressed {
+            transform: scale(0.95);
+            box-shadow: 0 0 15px white;
+        }
+
+        #startBtn {
+            margin-top: 20px;
+            padding: 10px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 10px;
+            border: none;
+            background-color: #444;
+            color: white;
+        }
+
+        #startBtn:hover {
+            background-color: #666;
+        }
+    </style>
 </head>
 <body>
 
-  <h1 id="level-title">Press Start to Play</h1>
+<h1>Simon Game</h1>
+<h2 id="level-title">Press Start to Begin</h2>
 
-  <div class="container">
-    <div id="green" class="btn green"></div>
-    <div id="red" class="btn red"></div>
-    <div id="yellow" class="btn yellow"></div>
-    <div id="blue" class="btn blue"></div>
-  </div>
+<button id="startBtn">Start</button>
 
-  <button id="start-btn">Start</button>
+<div class="container">
+    <button class="btn" id="green"></button>
+    <button class="btn" id="red"></button>
+    <button class="btn" id="yellow"></button>
+    <button class="btn" id="blue"></button>
+</div>
 
-  <script src="game.js"></script>
+<script>
+    const buttonColors = ["red", "blue", "green", "yellow"];
+    let gamePattern = [];
+    let userClickedPattern = [];
+    let started = false;
+    let level = 0;
+    let clickable = false;
+
+    document.getElementById("startBtn").addEventListener("click", function () {
+        if (!started) {
+            level = 0;
+            gamePattern = [];
+            started = true;
+            document.getElementById("level-title").textContent = "Level " + level;
+            nextSequence();
+        }
+    });
+
+    document.querySelectorAll(".btn").forEach(button => {
+        button.addEventListener("click", function () {
+            if (!started || !clickable) return;
+
+            const userChosenColor = this.id;
+            userClickedPattern.push(userChosenColor);
+            playSound(userChosenColor);
+            animatePress(userChosenColor);
+            checkAnswer(userClickedPattern.length - 1);
+        });
+    });
+
+    function checkAnswer(currentLevel) {
+        if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
+            if (userClickedPattern.length === gamePattern.length) {
+                clickable = false;
+                setTimeout(() => {
+                    nextSequence();
+                }, 1000);
+            }
+        } else {
+            playSound("wrong");
+            document.body.classList.add("game-over");
+            document.getElementById("level-title").textContent = "Game Over, Press Start to Restart";
+            setTimeout(() => {
+                document.body.classList.remove("game-over");
+            }, 200);
+            startOver();
+        }
+    }
+
+    function nextSequence() {
+        userClickedPattern = [];
+        level++;
+        document.getElementById("level-title").textContent = "Level " + level;
+
+        const randomNumber = Math.floor(Math.random() * 4);
+        const randomChosenColor = buttonColors[randomNumber];
+        gamePattern.push(randomChosenColor);
+
+        playSequence();
+    }
+
+    function playSequence() {
+        clickable = false;
+        let i = 0;
+        const interval = setInterval(() => {
+            const color = gamePattern[i];
+            const button = document.getElementById(color);
+            animateFlash(button);
+            playSound(color);
+            i++;
+            if (i >= gamePattern.length) {
+                clearInterval(interval);
+                setTimeout(() => clickable = true, 500);
+            }
+        }, 700);
+    }
+
+    function playSound(name) {
+        const audio = new Audio("sounds/" + name + ".mp3");
+        audio.play();
+    }
+
+    function animatePress(color) {
+        const button = document.getElementById(color);
+        button.classList.add("pressed");
+        setTimeout(() => {
+            button.classList.remove("pressed");
+        }, 100);
+    }
+
+    function animateFlash(button) {
+        button.classList.add("flash");
+        setTimeout(() => {
+            button.classList.remove("flash");
+        }, 200);
+    }
+
+    function startOver() {
+        level = 0;
+        gamePattern = [];
+        started = false;
+        clickable = false;
+    }
+</script>
+
 </body>
 </html>
